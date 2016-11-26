@@ -16,6 +16,11 @@ and loosely-coupled ETL pipeline. By this we mean that
   any existing code if the new handler is truly orthogonal to the rest of the
   app.
 
+* Sharing code between handlers is really, really easy, since they're (mostly)
+  just pure functions. No dealing with possibly complicated class hierarchies,
+  implementing boilerplate :code:`Handler.run` methods, etc to achieve
+  genericism and good code re-use.
+
 Here's some background, since there's a lot of jargon up there:
 
 ETL
@@ -47,4 +52,42 @@ handler
   we want to play them forward to arrive at a final system state. Along the
   way, we're gonna clean up the input dataset, check for inconsistencies, etc.
 
+  Since the problem domain breaks down naturally into these different event
+  types, we can structure our ETL definitions around that through the use of
+  *handlers*, which are just functions from loglines to "business objects," or
+  the desired output of our ETL pipeline. In this case, we go from loglines to
+  *effects*, which are represented in code by :code:`Eff`, and then we have
+  another mechanism in the canonical app object to go from effects to final
+  state.
+
+  The decision to have our pipeline look like ::
+
+    loglines ---(handlers)--> effects ---(state updater)--> final state
+
+  instead of the more naive approach of ::
+
+    loglines ---(state updater)--> final state
+
+  does wonders for testability, DRY-ness, modularity, etc. We're taking
+  advantage of the fact that just about every event type really reduces down to
+  an *effect* on our account status or positions or whatever to write code with
+  tight abstraction boundaries and loose coupling, using independent handlers
+  to handle the possibly gross task of moving from the input data to effects
+  and then a simple state machine to handle the simpler task of moving from
+  effects to final state, rather than bundling the nice work in with the gross
+  work in one massive, tightly-coupled machine.
+
 I'm also using this package to play around with python packaging styles.
+
+******
+issues
+******
+
+I'm sure you could have something like this that's "production ready," since
+most everything you want for production ready code can be implemented as layers
+around our canonical object without touching the handler definitions- things
+like logging, distributed running, etc. The only thing that this architecture
+doesn't provide well is that we've "fixed" the pipeline definition, in that the
+canonical object gets all these pre-defined handlers attached to it and then
+you can point it at a logfile, or even add further handlers, but the handlers
+in this package, or pipeline definition, are fixed.
