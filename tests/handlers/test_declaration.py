@@ -1,3 +1,7 @@
+DATADIR = 'data'
+
+
 class TestDeclarationHandler:
     def test(self):
-        pass
+        with open('{}/single_acct.log'.format(DATADIR), 'r') as logfile:
+            pass
