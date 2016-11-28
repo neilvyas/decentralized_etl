@@ -1,5 +1,4 @@
 from collections import defaultdict
-import json
 
 
 class EffPipeline:
@@ -28,39 +27,35 @@ class EffPipeline:
 
         return wrapper
 
-    def run(self, logfile_path):
+    def run(self, loglines):
         """Run the Effect Pipeline ETL job.
 
         Params
         ------
-          logfile_path : string
-          Path to logfile_path.
+            loglines : iterator[dict]
+            An iterator of loglines, as python dictionaries.
 
         Returns
         -------
             generator[Eff]
             A generator of effect objects.
         """
-        with open(logfile_path, 'r') as logfile:
-            for logline in logfile:
-                logline = json.loads(logline)
+        for logline in logfile:
+            event_type = logline.get('type')
+            # TODO: error handling.
+            if event_type is None:
+                return
 
-                event_type = logline.get('type')
-                # TODO: error handling.
-                if event_type is None:
-                    return
+            # get _handlers from the instance in case user added additional handlers.
+            handlers = self._handlers.get(event_type, [])
+            for handler in handlers:
+                # Try to pass the handler some state, if it needs it, otherwise
+                # just pass in the logline.
+                try:
+                    effects = handler(self, logline)
+                except TypeError:
+                    effects = handler(logline)
 
-                handlers = self.handlers.get(event_type, [])
-                for handler in handlers:
-                    # Try to pass the handler some state, if it needs it, otherwise
-                    # just pass in the logline.
-                    try:
-                        effects = handler(self, logline)
-                    except TypeError:
-                        effects = handler(logline)
-                    finally:
-                        effects = []
-
-                    # py3 : yield from effects
-                    for effect in effects:
-                        yield effect
+                # py3 : yield from effects
+                for effect in effects:
+                    yield effect
