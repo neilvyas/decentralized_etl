@@ -1,0 +1,10 @@
+{"ticker":"GOOG","event_type":"buy","amount":2,"price":610,"account_id":1,"timestamp":1}
+{"ticker":"MS","event_type":"buy","amount":3,"price":640,"account_id":1,"timestamp":2}
+{"ticker":"MS","event_type":"buy","amount":1,"price":40,"account_id":1,"timestamp":3}
+{"ticker":"MS","event_type":"buy","amount":4,"price":50,"account_id":1,"timestamp":3}
+{"ticker":"AAPL","event_type":"buy","amount":24,"price":660,"account_id":1,"timestamp":4}
+{"ticker":"AAPL","event_type":"buy","amount":4,"price":680,"account_id":1,"timestamp":4}
+{"ticker":"AAPL","event_type":"buy","amount":4,"price":700,"account_id":1,"timestamp":5}
+{"ticker":"AAPL","event_type":"buy","amount":4,"price":720,"account_id":1,"timestamp":5}
+{"ticker":"GOOG","event_type":"sell","amount":4,"price":660,"account_id":1,"timestamp":7}
+{"ticker":"GOOG","event_type":"sell","amount":4,"price":640,"account_id":1,"timestamp":7}

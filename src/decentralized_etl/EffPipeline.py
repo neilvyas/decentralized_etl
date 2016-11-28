@@ -76,8 +76,8 @@ class EffPipeline:
             generator[Eff]
             A generator of effect objects.
         """
-        for logline in logfile:
-            event_type = logline.get('type')
+        for logline in loglines:
+            event_type = logline.get('event_type')
             # TODO: error handling.
             if event_type is None:
                 return
