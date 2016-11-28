@@ -2,8 +2,12 @@
 decentralized_etl
 *****************
 
+See `this gist`_ for a single-file gist of what this demo tries to accomplish.
+
+.. `this gist`: https://gist.github.com/neilvyas/39bdae9711529473e17ffc3e7ea35969
+
 This is a small demo package that tries to demonstrate the use of decorator
-registration (using a canonical app object which has decorator methods to
+registration (using an app object which has decorator methods to
 register handler functions) for the problem of creating a modular, extensible,
 and loosely-coupled ETL pipeline. By this we mean that
 
@@ -40,11 +44,14 @@ decorator registration
 
   We refer to a specific pattern of decorator use here as *decorator
   registration*, since we're using the decorator only for its side effect, and
-  the desired side effect is registering the decorated function on the canonical
-  app object. By using a decorator to do this, we can decentralize all our
-  method/handler definitions, which is really nice in the case of an ETL
-  pipeline. Then, we just run the canonical app app object against the input and
-  we're away.
+  the desired side effect is registering the decorated function on the
+  app class.
+
+  You can think of it as we're defining instance methods on the main class
+  across multiple files, and while defining them we're also registering them as
+  handlers for certain event types. To do this, we define the instance methods
+  as pure functions in their own file and decorate them with a classmethod to
+  register them onto the class as a handler for the appropriate event type.
 
 handler
   We're considering a pretty typical ETL use-case with this toy package: we
