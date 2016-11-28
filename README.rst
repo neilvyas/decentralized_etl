@@ -25,6 +25,15 @@ and loosely-coupled ETL pipeline. By this we mean that
   implementing boilerplate :code:`Handler.run` methods, etc to achieve
   genericism and good code re-use.
 
+Note also that we've gone ahead and stuck all the handlers in the
+:code:`handlers` directory, but this isn't necessary. We can treat
+:code:`EffPipeline` as a library for creating ETLs on this dataset (loglines
+with the same fields/schema) and import it to define our own ETLs in a single
+file or package of our own, like `this example`_ for an algorithmic trading
+bot.
+
+.. _`this example`: https://github.com/neilvyas/ucf_exchange_client/blob/master/examples/market_maker.py#L23
+
 Here's some background, since there's a lot of jargon up there:
 
 ETL
