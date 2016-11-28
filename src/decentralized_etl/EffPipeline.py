@@ -10,6 +10,7 @@ class EffPipeline:
     """
 
     _handlers = defaultdict(list)
+    _stateful_handlers = set()
 
     @classmethod
     def handle(cls, event_type):
@@ -42,13 +43,9 @@ class EffPipeline:
             handler_args = getargspec(handler).args
 
             # Consider any handler with `state` or `self` as its first parameter to be stateful.
-            # TODO the way we handle stateful handlers at run time is just trying to pass both
-            # state and the logline and catching a TypeError if the handler doesn't need state.
-            # This is obviously bad because we check this condition for each handler and logline.
-            # Since we detect whether the handler is stateful here, we should be able to avoid this
-            # overhead at runtime.
             if handler_args[0] in ('state', 'self'):
                 handler_args = handler_args[1:]
+                cls._stateful_handlers.add(handler)
 
             def handler_for_logline(logline):
                 # TODO Handle malformed loglines here.
@@ -85,12 +82,11 @@ class EffPipeline:
             # get _handlers from the instance in case user added additional handlers.
             handlers = self._handlers.get(event_type, [])
             for handler in handlers:
-                # FIXME see l:42
                 # Try to pass the handler some state, if it needs it, otherwise
                 # just pass in the logline.
-                try:
+                if handler in self._stateful_handlers:
                     effects = handler(self, logline)
-                except TypeError:
+                else:
                     effects = handler(logline)
 
                 # py3 : yield from effects
