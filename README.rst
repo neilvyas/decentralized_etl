@@ -4,7 +4,7 @@ decentralized_etl
 
 See `this gist`_ for a single-file gist of what this demo tries to accomplish.
 
-.. `this gist`: https://gist.github.com/neilvyas/39bdae9711529473e17ffc3e7ea35969
+.. _`this gist`: https://gist.github.com/neilvyas/39bdae9711529473e17ffc3e7ea35969
 
 This is a small demo package that tries to demonstrate the use of decorator
 registration (using an app object which has decorator methods to
