@@ -14,7 +14,6 @@ Options:
     -h, --help           Show this screen and exit.
     --outfile=<outfile>  File to write final effects to, if needed. [default: None]
 """
-from decentralized_etl import app
 from docopt import docopt
 
 

@@ -1,8 +1,8 @@
-from decentralized_etl import app
+from decentralized_etl import Eff
+from decentralized_etl import EffPipeline
 from decentralized_etl import EventTypes as E
-from decentralized_etl.handlers import Eff
 
 
-@app.handle(E.Declaration)
+@EffPipeline.handle(E.Declaration)
 def handle_declaration(logline):
     pass

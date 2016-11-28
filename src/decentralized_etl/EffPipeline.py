@@ -8,24 +8,24 @@ class EffPipeline:
 
     """
 
-    def __init__(self):
-        self.handlers = defaultdict(list)
+    _handlers = defaultdict(list)
 
-    def handle(self, event_type):
+    @classmethod
+    def handle(cls, event_type):
         """Register an event handler for event_type.
 
         Usage:
-            @app.handle('call')
-            @app.handle('put')
+            @EffPipeline.handle('call')
+            @EffPipeline.handle('put')
             def handle_option_exercise(...):
                 pass
         """
 
-        def wrapper(handler):
-            self.handlers[event_type] = handler
+        def handler_registration(handler):
+            cls._handlers[event_type] = handler
             return handler
 
-        return wrapper
+        return handler_registration
 
     def run(self, loglines):
         """Run the Effect Pipeline ETL job.
