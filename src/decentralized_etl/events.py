@@ -4,5 +4,5 @@ class EventTypes:
     Declaration = 'declaration'
     Buy = 'buy'
     Sell = 'sell'
-    Call = 'call'
-    Put = 'put'
+    ExerciseCall = 'call'
+    ExercisePut = 'put'

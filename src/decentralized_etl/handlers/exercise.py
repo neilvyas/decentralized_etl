@@ -3,8 +3,10 @@ from decentralized_etl import EffPipeline
 from decentralized_etl import EventTypes as E
 
 
-@EffPipeline.handle(E.Call)
-@EffPipeline.handle(E.Put)
+# TODO maybe check in the account state that we're given
+# that the account has the contract present before exercise.
+@EffPipeline.handle(E.ExerciseCall)
+@EffPipeline.handle(E.ExercisePut)
 def handle_option_exercise(
         _,
         ticker,
@@ -12,24 +14,29 @@ def handle_option_exercise(
         account_id,
         timestamp,
         strike,
-        premium,
         underlying_spot,
         event_type,
         direction):
-    """Option value at expiry:
+    """Given an exercise event, compute the effects.
+
+    NB: We don't bother deciding whether or not to exercise (in the case of a long) or
+    whether or not the counterparty exercises (in the case of a short). Instead, we
+    suppose that if we see this event, an exercise occurred.
+
+    Option value at expiry:
+    (the max() indicates that this is an option, but we don't compute that)
 
     (Long/Short)(Call / Put)
     ------------------------
-    LC : max(0, spot - strike) - premium
-    SC : premium - max(0, spot - strike)
-    LP : max(0, strike - spot) - premium
-    SP : premium - max(0, strike - spot)
+    LC : max(0, spot - strike)
+    SC : - max(0, spot - strike)
+    LP : max(0, strike - spot)
+    SP : - max(0, strike - spot)
     """
     direction = 1 if direction == 'long' else -1
-    payoff_direction = 1 if event_type == E.Call else -1
+    payoff_direction = 1 if event_type == E.ExerciseCall else -1
 
-    payoff = max(0, payoff_direction * (underlying_spot - strike))
-    contract_value = direction * (payoff - premium)
+    payoff = payoff_direction * (underlying_spot - strike)
 
-    yield(ticker, amount, account_id, timestamp)
-    yield('CASH', amount, amount * contract_value, timestamp)
+    yield(ticker, direction * amount, account_id, timestamp)
+    yield('CASH', direction * amount * payoff, account_id, timestamp)
