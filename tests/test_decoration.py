@@ -1,5 +1,6 @@
 from decentralized_etl import EffPipeline
 
 
-def test_handler_decoration():
-    assert EffPipeline._handlers
+class TestHandlersDecorated:
+    def test_handlers_present(self):
+        assert EffPipeline._logline_handlers
