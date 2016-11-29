@@ -9,8 +9,7 @@ class EffPipeline:
 
     """
 
-    _handlers = defaultdict(list)
-    _stateful_handlers = set()
+    _logline_handlers = defaultdict(list)
 
     @classmethod
     def handle(cls, event_type):
@@ -26,26 +25,21 @@ class EffPipeline:
 
             handler : function (via decoration)
             A handler function that has only positional arguments with names
-            that correspond to fields in the logline.
+            that correspond to fields in the logline, with the first parameter
+            being reserved to pass in a state reference.
 
-            If the first parameter is 'state', then the handler is understood
-            to be 'stateful', and that parameter will be passed `self`.
 
         Usage
         -----
             @EffPipeline.handle('call')
             @EffPipeline.handle('put')
-            def handle_option_exercise(...):
+            def handle_option_exercise(state, ticker, account_id, ...)
                 pass
         """
 
         def handler_registration(handler):
-            handler_args = getargspec(handler).args
-
-            # Consider any handler with `state` or `self` as its first parameter to be stateful.
-            if handler_args[0] in ('state', 'self'):
-                handler_args = handler_args[1:]
-                cls._stateful_handlers.add(handler)
+            # The first argument is reserved for passing a state reference.
+            handler_args = getargspec(handler).args[1:]
 
             def handler_for_logline(logline):
                 # TODO Handle malformed loglines here.
@@ -53,7 +47,7 @@ class EffPipeline:
 
                 return handler(**{arg: logline[arg] for arg in handler_args})
 
-            cls._handlers[event_type] = handler_for_logline
+            cls._logline_handlers[event_type] = handler_for_logline
 
             # Return the original handler for testing purposes.
             return handler
@@ -79,15 +73,10 @@ class EffPipeline:
             if event_type is None:
                 return
 
-            # get _handlers from the instance in case user added additional handlers.
-            handlers = self._handlers.get(event_type, [])
-            for handler in handlers:
-                # Try to pass the handler some state, if it needs it, otherwise
-                # just pass in the logline.
-                if handler in self._stateful_handlers:
-                    effects = handler(self, logline)
-                else:
-                    effects = handler(logline)
+            # get _logline_handlers from the instance in case user added additional handlers.
+            logline_handlers = self._logline_handlers.get(event_type, [])
+            for logline_handler in logline_handlers:
+                effects = logline_handler(self, logline)
 
                 # py3 : yield from effects
                 for effect in effects:
